@@ -17,6 +17,8 @@ var app = express();
 
 // all environments
 app.set('port', 8081);
+app.set('views', __dirname + '/views')
+app.set('view engine', 'jade')
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
@@ -147,7 +149,6 @@ var grabToken = function (code, errorCallback, successCallback) {
         }
     });
 };
-
 app.get('/', function (req, res) {
     if (!oauth2Client.credentials) {
         // generates a url that allows offline access and asks permissions
@@ -162,6 +163,7 @@ app.get('/', function (req, res) {
     }
     res.write('Glass Mirror API with Node');
     res.end();
+    res.render('config');
 
 });
 app.get('/oauth2callback', function (req, res) {
@@ -178,7 +180,6 @@ app.post('/location', function(req, res){
     console.log('location',req);
     res.end();
 });
-
 http.createServer(app).listen(app.get('port'), function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
