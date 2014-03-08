@@ -18,15 +18,15 @@ var oauth2Client = new OAuth2Client(process.env.MIRROR_DEMO_CLIENT_ID,
 var app = express();
 
 // all environments
-app.set('port', 8081);
+app.set('port', 3000);
 app.set('views', __dirname + '/views')
 app.set('view engine', 'jade')
 app.use(express.logger('dev'));
+app.use(express.static('public'));
+app.use(express.cookieParser());
 app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
-
 app.use(passport.initialize());
+
 
 // passport.use(new GoogleStrategy({
 //     returnURL: 'http://localhost:8081/auth/google/return',
@@ -43,13 +43,11 @@ app.use(passport.initialize());
 passport.use(new GoogleStrategy({
     clientID: "331114272577-vn1bqa914q589kjt37fadbs8clf7mlmn.apps.googleusercontent.com",
     clientSecret: "JkCeQ1nZD_PxnX5V3aN-paEB",
-    callbackURL: "http://localhost:8081/auth/google/callback"
+    callbackURL: "http://localhost:3000/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     console.log('called back');
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      return done(err, user);
-    });
+    done(null);
   }
 ));
 
@@ -197,25 +195,19 @@ var grabToken = function (code, errorCallback, successCallback) {
 
 // });
 
-app.get('/', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
-                                            'https://www.googleapis.com/auth/userinfo.email'] }),
-  function(req, res){
-    // The request will be redirected to Google for authentication, so this
-    // function will not be called.
+app.get('/',function(req, res){
+    res.render('config');
   });
+
+app.get('/login', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
+                                            'https://www.googleapis.com/auth/userinfo.email'] }));
 
 app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('/');
-  });
-
-app.get('/oauth2callback', function (req, res) {
-    // if we're able to grab the token, redirect the user back to the main page
-    grabToken(req.query.code, failure, function () {
-        res.redirect('/');
-    });
+    console.log("shahahaha")
+    res.render('config');
 });
+
 app.post('/reply', function(req, res){
     console.log('replied',req);
     res.end();
